@@ -33,7 +33,7 @@ type FormElement struct {
 }
 
 // ParseSelect is a method on FormElement that parses a select statement
-func (elm FormElement) ParseSelect() (string, error) {
+func (elm *FormElement) ParseSelect() (string, error) {
 	var tplOut bytes.Buffer
 	err = t.ExecuteTemplate(&tplOut, "select_element", elm)
 	if err != nil {
@@ -44,7 +44,7 @@ func (elm FormElement) ParseSelect() (string, error) {
 }
 
 // NotEmpty is a method on FormElement that determines if a passed string is empty (length == 0)
-func (elm FormElement) NotEmpty(str string) bool {
+func (elm *FormElement) NotEmpty(str string) bool {
 	if len(str) == 0 {
 		return true
 	}
@@ -61,7 +61,7 @@ type SelectOption struct {
 
 // HTMLTemplateMap maps form element types to a default Twitter Boostrap HTML template string
 const selectTemplate = `
-<label for="{{ .ID }}">{{ .Label }}</label>
+<label"" for="{{ .ID }}">{{ .Label }}</label>
 <select name="{{ .Name }}" id="{{ .ID }}" class="form-select">
   <option value="not_selected" selected>-- Select --</option>
   {{range .Options}}
