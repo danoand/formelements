@@ -1,6 +1,11 @@
 package formelements
 
-import tmpl "html/template"
+import (
+	"bytes"
+	"fmt"
+	tmpl "html/template"
+	"os"
+)
 
 // FormElement describes an HTML element that can be included in a form
 type FormElement struct {
@@ -27,7 +32,18 @@ type FormElement struct {
 	HTMLTemplate  tmpl.Template     `json:"html_template"`
 }
 
-// NotEmpty determines if a passed string is empty (length == 0)
+// ParseSelect is a method on FormElement that parses a select statement
+func (elm FormElement) ParseSelect() (string, error) {
+	var tplOut bytes.Buffer
+	err = t.ExecuteTemplate(&tplOut, "select_element", elm)
+	if err != nil {
+		return "", err
+	}
+
+	return tplOut.String(), nil
+}
+
+// NotEmpty is a method on FormElement that determines if a passed string is empty (length == 0)
 func (elm FormElement) NotEmpty(str string) bool {
 	if len(str) == 0 {
 		return true
@@ -59,4 +75,15 @@ const selectTemplate = `
 
 var HTMLTemplateMap = map[string]string{
 	"select_element": selectTemplate,
+}
+
+var err error
+var t *tmpl.Template
+
+func init() {
+	t, err = tmpl.New("select_element").Parse(HTMLTemplateMap["select_element"])
+	if err != nil {
+		fmt.Printf("error parsing the select_element template; see: %v\n", err)
+		os.Exit(1)
+	}
 }
