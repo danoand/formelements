@@ -80,7 +80,7 @@ func init() {
 	`
 	t, err = tmpl.New("select_element").Parse(HTMLTemplateMap["select_element"])
 	if err != nil {
-		fmt.Printf("hey man! error parsing the select_element template; see: %v\n", err)
+		fmt.Printf("error parsing the select_element: %v template; see: %v\n", len(HTMLTemplateMap["select_element"]), err)
 		os.Exit(1)
 	}
 }
