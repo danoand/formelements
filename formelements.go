@@ -60,8 +60,13 @@ type SelectOption struct {
 }
 
 // HTMLTemplateMap maps form element types to a default Twitter Boostrap HTML template string
-var HTMLTemplateMap = map[string]string{
-	"select_element": `
+var HTMLTemplateMap = make(map[string]string)
+
+var err error
+var t *tmpl.Template
+
+func init() {
+	HTMLTemplateMap["select_element"] = `
 	<label"" for="{{ .ID }}">{{ .Label }}</label>
 	<select name="{{ .Name }}" id="{{ .ID }}" class="form-select">
 	  <option value="not_selected" selected>-- Select --</option>
@@ -72,13 +77,7 @@ var HTMLTemplateMap = map[string]string{
 	{{ if .FormElement.NotEmpty .HelpText }}
 	<small class="form-text text-muted">We'll never share your email with anyone else.</small>
 	{{ .end }}
-	`,
-}
-
-var err error
-var t *tmpl.Template
-
-func init() {
+	`
 	t, err = tmpl.New("select_element").Parse(HTMLTemplateMap["select_element"])
 	if err != nil {
 		fmt.Printf("hey man! error parsing the select_element template; see: %v\n", err)
