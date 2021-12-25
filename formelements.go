@@ -60,36 +60,26 @@ type SelectOption struct {
 }
 
 // HTMLTemplateMap maps form element types to a default Twitter Boostrap HTML template string
-var HTMLTemplateMap = make(map[string]string)
+var HTMLTemplateMap = map[string]string{
+	"select_element": `
+	<label for="{{ .ID }}">{{ .Label }}</label>
+	<select name="{{ .Name }}" id="{{ .ID }}" class="form-select">
+	  <option value="not_selected" selected>-- Select --</option>
+	  {{range .Options}}
+		<option value="{{ .Value }}">{{ .Display }}</option> 
+	  {{end}}
+	</select>
+	{{ if .FormElement.NotEmpty .HelpText }}
+	<small class="form-text text-muted">We'll never share your email with anyone else.</small>
+	{{ end }}
+	`,
+}
 
 var err error
 var t *tmpl.Template
 
 func init() {
-	HTMLTemplateMap["select_element"] = `
-	<label for="{{ .ID }}">{{ .Label }}</label>
-	<select name="{{ .Name }}" id="{{ .ID }}" class="form-select">
-	  <option value="not_selected" selected>-- Select --</option>
-	  {{range .Options}}
-		<option value="{{ .Value }}">{{ .Display }}</option> 
-	  {{end}}
-	</select>
-	{{ if .FormElement.NotEmpty .HelpText }}
-	<small class="form-text text-muted">We'll never share your email with anyone else.</small>
-	{{ .end }}
-	`
-	t, err = tmpl.New("select_element").Parse(`
-	<label for="{{ .ID }}">{{ .Label }}</label>
-	<select name="{{ .Name }}" id="{{ .ID }}" class="form-select">
-	  <option value="not_selected" selected>-- Select --</option>
-	  {{range .Options}}
-		<option value="{{ .Value }}">{{ .Display }}</option> 
-	  {{end}}
-	</select>
-	{{ if .FormElement.NotEmpty .HelpText }}
-	<small class="form-text text-muted">We'll never share your email with anyone else.</small>
-	{{ .end }}
-	`)
+	t, err = tmpl.New("select_element").Parse(HTMLTemplateMap["select_element"])
 	if err != nil {
 		fmt.Printf("error parsing the select_element: %v template; see: %v\n", len(HTMLTemplateMap["select_element"]), err)
 		os.Exit(1)
