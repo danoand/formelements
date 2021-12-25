@@ -18,12 +18,14 @@ type FormElement struct {
 	Label         string            `json:"label"`
 	HelpText      string            `json:"help_text"`
 	Classes       []string          `json:"string"`
+	AlertClass    string            `json:"alert_class"`
 	Options       []SelectOption    `json:"select_options"`
 	IsMultSelect  bool              `json:"is_multi_select"`
 	IsHidden      bool              `json:"is_hidden"`
 	IsRequired    bool              `json:"is_required"`
 	Value         string            `json:"value"`
 	Placeholder   string            `json:"placeholder"`
+	AlertMessages []string          `json:"alert_messages"`
 	CheckBoxValue string            `json:"checkbox_value"`
 	RadioLabel1   string            `json:"radio_label_1"`
 	RadioValue1   string            `json:"radio_value_1"`
@@ -59,29 +61,82 @@ type SelectOption struct {
 	Display string `json:"display"`
 }
 
-// HTMLTemplateMap maps form element types to a default Twitter Boostrap HTML template string
-var HTMLTemplateMap = map[string]string{
-	"select_element": `
-	<label for="{{ .ID }}">{{ .Label }}</label>
-	<select name="{{ .Name }}" id="{{ .ID }}" class="form-select">
-	  <option value="not_selected" selected>-- Select --</option>
-	  {{range .Options}}
-		<option value="{{ .Value }}">{{ .Display }}</option> 
-	  {{end}}
-	</select>
-	{{ if .FormElement.NotEmpty .HelpText }}
-	<small class="form-text text-muted">We'll never share your email with anyone else.</small>
-	{{ end }}
+// HTMLTemplateStrings maps form element types to a default Twitter Boostrap HTML template string
+var HTMLTemplateStrings = map[string]string{
+	//
+	// alert messages
+	//
+	"alert_messages": `
+	<div class="alert {{ .AlertClass }}" role="alert">
+		{{range .AlertMessages}}
+			{{.}}
+		{{end}}
+	</div>
 	`,
+	//
+	// select element
+	//
+	"select_element": `
+	<div class="mb-3">
+		<label for="{{ .ID }}">{{ .Label }}</label>
+		<select name="{{ .Name }}" id="{{ .ID }}" class="form-select">
+			<option value="not_selected" selected>-- Select --</option>
+			{{range .Options}}
+			<option value="{{ .Value }}">{{ .Display }}</option> 
+			{{end}}
+		</select>
+		{{ if .NotEmpty .HelpText }}
+		<small class="form-text text-muted">{{ .HelpText }}</small>
+		{{ end }}
+	<div class="mb-3">
+	`,
+	//
+	// textarea element
+	//
+	"textarea": `
+	<div class="mb-3">
+		<label for="{{ .ID }}">{{ .Label }}</label>
+		<textarea class="form-control" id="{{ .ID }}" rows="4" readonly>{{ .Value }}</textarea>
+	</div>
+	`,
+	//
+	// pdf file element
+	//
+	"pdf_file": `
+	<div class="mb-3">
+		<div id="{{ .ID }}_pdf"></div>
+	</div>
+	`,
+	//
+	// horizonal line (hr) element
+	//
+	"hr": `<hr>`,
 }
 
+// HTMLTemplates maps form element types to default Twitter Bootstrap HTML templates
+var HTMLTemplates = make(map[string]*tmpl.Template)
+
 var err error
-var t *tmpl.Template
 
 func init() {
-	t, err = tmpl.New("select_element").Parse(HTMLTemplateMap["select_element"])
+	HTMLTemplates["select_element"], err = tmpl.New("select_element").Parse(HTMLTemplateStrings["select_element"])
 	if err != nil {
-		fmt.Printf("error parsing the select_element: %v template; see: %v\n", len(HTMLTemplateMap["select_element"]), err)
+		fmt.Printf("error parsing the select_element: %v template; see: %v\n", len(HTMLTemplateStrings["select_element"]), err)
+		os.Exit(1)
+	}
+	HTMLTemplates["textarea"], err = tmpl.New("textarea").Parse(HTMLTemplateStrings["textarea"])
+	if err != nil {
+		fmt.Printf("error parsing the textarea: %v template; see: %v\n", len(HTMLTemplateStrings["textarea"]), err)
+		os.Exit(1)
+	}
+	HTMLTemplates["pdf_file"], err = tmpl.New("pdf_file").Parse(HTMLTemplateStrings["pdf_file"])
+	if err != nil {
+		fmt.Printf("error parsing the pdf_file: %v template; see: %v\n", len(HTMLTemplateStrings["pdf_file"]), err)
+		os.Exit(1)
+	}
+	HTMLTemplates["hr"], err = tmpl.New("hr").Parse(HTMLTemplateStrings["hr"])
+	if err != nil {
+		fmt.Printf("error parsing the hr: %v template; see: %v\n", len(HTMLTemplateStrings["hr"]), err)
 		os.Exit(1)
 	}
 }
