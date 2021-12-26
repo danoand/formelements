@@ -119,6 +119,11 @@ var HTMLTemplates = make(map[string]*tmpl.Template)
 var err error
 
 func init() {
+	HTMLTemplates["alert_messages"], err = tmpl.New("alert_messages").Parse(HTMLTemplateStrings["alert_messages"])
+	if err != nil {
+		fmt.Printf("error parsing the alert_messages: %v template; see: %v\n", len(HTMLTemplateStrings["alert_messages"]), err)
+		os.Exit(1)
+	}
 	HTMLTemplates["select_element"], err = tmpl.New("select_element").Parse(HTMLTemplateStrings["select_element"])
 	if err != nil {
 		fmt.Printf("error parsing the select_element: %v template; see: %v\n", len(HTMLTemplateStrings["select_element"]), err)
