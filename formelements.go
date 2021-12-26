@@ -34,10 +34,10 @@ type FormElement struct {
 	HTMLTemplate  tmpl.Template     `json:"html_template"`
 }
 
-// ParseSelect is a method on FormElement that parses a select statement
-func (elm *FormElement) ParseSelect() (string, error) {
+// ParseElement is a method on FormElement that parses a select statement
+func (elm *FormElement) ParseElement() (string, error) {
 	var tplOut bytes.Buffer
-	err = t.ExecuteTemplate(&tplOut, "select_element", elm)
+	err = HTMLTemplates[elm.Type].ExecuteTemplate(&tplOut, elm.Type, elm)
 	if err != nil {
 		return "", err
 	}
