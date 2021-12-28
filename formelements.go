@@ -34,8 +34,8 @@ type FormElement struct {
 	HTMLTemplate  tmpl.Template     `json:"html_template"`
 }
 
-// ParseElement is a method on FormElement that parses a select statement
-func (elm *FormElement) ParseElement() (string, error) {
+// ParseElementString is a method on FormElement that parses an element as a string of HTML
+func (elm *FormElement) ParseElementString() (string, error) {
 	var tplOut bytes.Buffer
 	err = HTMLTemplates[elm.Type].ExecuteTemplate(&tplOut, elm.Type, elm)
 	if err != nil {
@@ -43,6 +43,17 @@ func (elm *FormElement) ParseElement() (string, error) {
 	}
 
 	return tplOut.String(), nil
+}
+
+// ParseElementHTMLTemplate is a method on FormElement that parses an element as a string of HTML
+func (elm *FormElement) ParseElementHTMLTemplate() (tmpl.HTML, error) {
+	var tplOut bytes.Buffer
+	err = HTMLTemplates[elm.Type].ExecuteTemplate(&tplOut, elm.Type, elm)
+	if err != nil {
+		return "", err
+	}
+
+	return tmpl.HTML(tplOut.String()), nil
 }
 
 // NotEmpty is a method on FormElement that determines if a passed string is empty (length == 0)
